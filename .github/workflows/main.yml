@@ -32,11 +32,11 @@ jobs:
           ABI_URL="https://poolzfinancedata.com/contracts?NameVersion=${CONTRACT_NAME}@${CONTRACT_VERSION}"
           ABI_JSON=$(curl -s $ABI_URL)
           ABI=$(echo $ABI_JSON | jq '.[0].ABI')
-          echo $ABI > ${{ github.workspace }}/${CONTRACT_NAME}.abi
+          echo $ABI > ${{ github.workspace }}/${CONTRACT_NAME}.json
         shell: bash
 
       - name: Generate TypeScript types
-        run: abi-types-generator ${{ github.workspace }}/${CONTRACT_NAME}.abi --output=${{ github.workspace }}/${CONTRACT_NAME}
+        run: npx abi-types-generator ${{ github.workspace }}/${CONTRACT_NAME}.json --output=${{ github.workspace }}/${CONTRACT_NAME}
 
       - name: Create new branch
         run: |
