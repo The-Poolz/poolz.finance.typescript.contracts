@@ -36,7 +36,7 @@ jobs:
         shell: bash
 
       - name: Generate TypeScript types
-        run: ethereum-abi-types-generator --abi ${{ github.workspace }}/${CONTRACT_NAME}.abi --output ${{ github.workspace }}/${CONTRACT_NAME}
+        run: abi-types-generator ${{ github.workspace }}/${CONTRACT_NAME}.abi --output=${{ github.workspace }}/${CONTRACT_NAME}
 
       - name: Create new branch
         run: |
