@@ -59,18 +59,81 @@ export type ContractContext = Web3ContractContext<
   SimpleRefundBuilderEventsContext,
   SimpleRefundBuilderEvents
 >;
-export type SimpleRefundBuilderEvents = undefined;
-export interface SimpleRefundBuilderEventsContext {}
+export type SimpleRefundBuilderEvents =
+  | 'FirewallAdminUpdated'
+  | 'FirewallUpdated'
+  | 'MassPoolsCreated'
+  | 'MassPoolsRebuilded';
+export interface SimpleRefundBuilderEventsContext {
+  FirewallAdminUpdated(
+    parameters: {
+      filter?: {};
+      fromBlock?: number;
+      toBlock?: 'latest' | number;
+      topics?: string[];
+    },
+    callback?: (error: Error, event: EventData) => void
+  ): EventResponse;
+  FirewallUpdated(
+    parameters: {
+      filter?: {};
+      fromBlock?: number;
+      toBlock?: 'latest' | number;
+      topics?: string[];
+    },
+    callback?: (error: Error, event: EventData) => void
+  ): EventResponse;
+  MassPoolsCreated(
+    parameters: {
+      filter?: { token?: string | string[]; provider?: string | string[] };
+      fromBlock?: number;
+      toBlock?: 'latest' | number;
+      topics?: string[];
+    },
+    callback?: (error: Error, event: EventData) => void
+  ): EventResponse;
+  MassPoolsRebuilded(
+    parameters: {
+      filter?: { token?: string | string[]; provider?: string | string[] };
+      fromBlock?: number;
+      toBlock?: 'latest' | number;
+      topics?: string[];
+    },
+    callback?: (error: Error, event: EventData) => void
+  ): EventResponse;
+}
 export type SimpleRefundBuilderMethodNames =
   | 'new'
+  | 'acceptFirewallAdmin'
   | 'buildMassPools'
   | 'collateralProvider'
   | 'firewallAdmin'
   | 'lockDealNFT'
   | 'onERC721Received'
   | 'refundProvider'
+  | 'safeFunctionCall'
+  | 'setApprovedTarget'
   | 'setFirewall'
   | 'setFirewallAdmin';
+export interface FirewallAdminUpdatedEventEmittedResponse {
+  newAdmin: string;
+}
+export interface FirewallUpdatedEventEmittedResponse {
+  newFirewall: string;
+}
+export interface MassPoolsCreatedEventEmittedResponse {
+  token: string;
+  provider: string;
+  firstPoolId: string;
+  userLength: string;
+}
+export interface MassPoolsRebuildedEventEmittedResponse {
+  token: string;
+  provider: string;
+  collateralPoolId: string;
+  firstPoolId: string;
+  userLength: string;
+}
 export interface UserPoolsRequest {
   user: string;
   amount: string;
@@ -85,15 +148,22 @@ export interface SimpleRefundBuilder {
    * Constant: false
    * StateMutability: nonpayable
    * Type: constructor
-   * @param _nft Type: address, Indexed: false
+   * @param _lockDealNFT Type: address, Indexed: false
    * @param _refund Type: address, Indexed: false
    * @param _collateral Type: address, Indexed: false
    */
   'new'(
-    _nft: string,
+    _lockDealNFT: string,
     _refund: string,
     _collateral: string
   ): MethodReturnContext;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   */
+  acceptFirewallAdmin(): MethodReturnContext;
   /**
    * Payable: false
    * Constant: false
@@ -138,16 +208,16 @@ export interface SimpleRefundBuilder {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param parameter0 Type: address, Indexed: false
-   * @param parameter1 Type: address, Indexed: false
-   * @param parameter2 Type: uint256, Indexed: false
-   * @param parameter3 Type: bytes, Indexed: false
+   * @param operator Type: address, Indexed: false
+   * @param user Type: address, Indexed: false
+   * @param collateralPoolId Type: uint256, Indexed: false
+   * @param data Type: bytes, Indexed: false
    */
   onERC721Received(
-    parameter0: string,
-    parameter1: string,
-    parameter2: string,
-    parameter3: string | number[]
+    operator: string,
+    user: string,
+    collateralPoolId: string,
+    data: string | number[]
   ): MethodReturnContext;
   /**
    * Payable: false
@@ -156,6 +226,29 @@ export interface SimpleRefundBuilder {
    * Type: function
    */
   refundProvider(): MethodConstantReturnContext<string>;
+  /**
+   * Payable: true
+   * Constant: false
+   * StateMutability: payable
+   * Type: function
+   * @param target Type: address, Indexed: false
+   * @param targetPayload Type: bytes, Indexed: false
+   * @param data Type: bytes, Indexed: false
+   */
+  safeFunctionCall(
+    target: string,
+    targetPayload: string | number[],
+    data: string | number[]
+  ): MethodPayableReturnContext;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param target Type: address, Indexed: false
+   * @param status Type: bool, Indexed: false
+   */
+  setApprovedTarget(target: string, status: boolean): MethodReturnContext;
   /**
    * Payable: false
    * Constant: false
